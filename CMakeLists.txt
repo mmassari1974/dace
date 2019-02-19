@@ -67,6 +67,7 @@ endif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 # Boolean options
 option(WITH_ALGEBRAICMATRIX "Include the AlgebraicMatrix type (experimental)" OFF)
 option(WITH_PTHREAD "Enable threading via pthread library" OFF)
+option(BUILDPYTHON "Build Python Interface" OFF)
 
 # Tri-state option for memory model and the associated choices
 set(DACE_MEMORY_MODEL DYNAMIC CACHE STRING "DACE memory model")
@@ -123,7 +124,9 @@ include_directories("interfaces/cxx/include")
 # now process the subdirectories
 add_subdirectory(core)
 add_subdirectory(interfaces/cxx)
-
+if(BUILDPYTHON)
+  add_subdirectory(interfaces/python)
+endif(BUILDPYTHON)
 
 # Package generation setting
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DACE Library")
