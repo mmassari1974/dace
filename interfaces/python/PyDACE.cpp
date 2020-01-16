@@ -29,6 +29,13 @@ boost::python::list vect2list(std::vector<T> InputVect)
   return OutputList;
 };
 
+template <typename T>
+std::vector<T> list2vect(const boost::python::list &iterable)
+{
+  return std::vector<T>(boost::python::stl_input_iterator<T>(iterable),
+                        boost::python::stl_input_iterator<T>());
+}
+
 // Functions used to convert Python lists to C++ vectors.
 // More than one converter is needed because automatic
 // conversion from a list to a specified C++ type is not
@@ -36,59 +43,87 @@ boost::python::list vect2list(std::vector<T> InputVect)
 // be converted both in std::vector<int> and
 // std::vector<unsigned int>. Same holds for floats and
 // doubles.
-std::vector<int> list2vect_int(const boost::python::list &iterable)
-{
-  return std::vector<int>(boost::python::stl_input_iterator<int>(iterable),
-                          boost::python::stl_input_iterator<int>());
-}
+// std::vector<int> list2vect_int(const boost::python::list &iterable)
+// {
+//   return std::vector<int>(boost::python::stl_input_iterator<int>(iterable),
+//                           boost::python::stl_input_iterator<int>());
+// }
 
-std::vector<unsigned int> list2vect_unsigned_int(const boost::python::list &iterable)
-{
-  return std::vector<unsigned int>(boost::python::stl_input_iterator<unsigned int>(iterable),
-                                   boost::python::stl_input_iterator<unsigned int>());
-}
+// std::vector<unsigned int> list2vect_unsigned_int(const boost::python::list &iterable)
+// {
+//   return std::vector<unsigned int>(boost::python::stl_input_iterator<unsigned int>(iterable),
+//                                    boost::python::stl_input_iterator<unsigned int>());
+// }
 
-std::vector<float> list2vect_float(const boost::python::list &iterable)
-{
-  return std::vector<float>(boost::python::stl_input_iterator<float>(iterable),
-                            boost::python::stl_input_iterator<float>());
-}
+// std::vector<float> list2vect_float(const boost::python::list &iterable)
+// {
+//   return std::vector<float>(boost::python::stl_input_iterator<float>(iterable),
+//                             boost::python::stl_input_iterator<float>());
+// }
 
-std::vector<double> list2vect_double(const boost::python::list &iterable)
-{
-  return std::vector<double>(boost::python::stl_input_iterator<double>(iterable),
-                             boost::python::stl_input_iterator<double>());
-}
+// std::vector<double> list2vect_double(const boost::python::list &iterable)
+// {
+//   return std::vector<double>(boost::python::stl_input_iterator<double>(iterable),
+//                              boost::python::stl_input_iterator<double>());
+// }
 
-std::vector<std::string> list2vect_string(const boost::python::list &iterable)
-{
-  return std::vector<std::string>(boost::python::stl_input_iterator<std::string>(iterable),
-                                  boost::python::stl_input_iterator<std::string>());
-}
+// std::vector<std::string> list2vect_string(const boost::python::list &iterable)
+// {
+//   return std::vector<std::string>(boost::python::stl_input_iterator<std::string>(iterable),
+//                                   boost::python::stl_input_iterator<std::string>());
+// }
 
-std::vector<DA> list2vect_DA(const boost::python::list &iterable)
-{
-  return std::vector<DA>(boost::python::stl_input_iterator<DA>(iterable),
-                         boost::python::stl_input_iterator<DA>());
-}
+// std::vector<DA> list2vect_DA(const boost::python::list &iterable)
+// {
+//   return std::vector<DA>(boost::python::stl_input_iterator<DA>(iterable),
+//                          boost::python::stl_input_iterator<DA>());
+// }
 
 // Function used to print C++ vectors in Python
-template <typename T>
-void printVect(std::vector<T> InputVect)
-{
-  std::cout << "[";
+// template <typename T>
+// void printVect(std::vector<T> InputVect)
+// {
+//   std::cout << "[";
 
-  for (int i = 0; i != InputVect.size() - 1; ++i)
-  {
-    std::cout << InputVect[i] << ", ";
-  }
+//   for (int i = 0; i != InputVect.size() - 1; ++i)
+//   {
+//     std::cout << InputVect[i] << ", ";
+//   }
 
-  std::cout << InputVect[InputVect.size() - 1] << "] \n";
-};
+//   std::cout << InputVect[InputVect.size() - 1] << "] \n";
+// };
 
 /////////////////////////////////////////////////
 //         WRAPPING WITH BOOST.PYTHON          //
 /////////////////////////////////////////////////
+
+class PyDA : public DA
+{
+  private:
+  protected:
+  public:
+
+  boost::python::list linear() const
+  {
+    return vect2list<double>(DA::linear());
+  }
+
+  boost::python::list gradient() const
+  {
+    return vect2list<PyDA>(DA::gradient());
+  }
+
+  double getCoefficient(const boost::python::list &jj) const
+  {
+    return DA::getCoefficient(list2vect<unsigned int>(jj));
+  }                //!< Get specific coefficient
+  void setCoefficient(const boost::python::list &jj, const double coeff)
+  {
+    DA::setCoefficient(list2vect<unsigned int>(jj) , coeff);
+  }
+
+};
+
 
 BOOST_PYTHON_MODULE(PyDACE)
 {
@@ -123,25 +158,25 @@ BOOST_PYTHON_MODULE(PyDACE)
   /////////////////////////////////////////////////
 
   // All overloaded methods are wrapped
-  def("vect2list", vect2list<int>);
-  def("vect2list", vect2list<unsigned int>);
-  def("vect2list", vect2list<float>);
-  def("vect2list", vect2list<double>);
-  def("vect2list", vect2list<std::string>);
-  def("vect2list", vect2list<DA>);
+  // def("vect2list", vect2list<int>);
+  // def("vect2list", vect2list<unsigned int>);
+  // def("vect2list", vect2list<float>);
+  // def("vect2list", vect2list<double>);
+  // def("vect2list", vect2list<std::string>);
+  // def("vect2list", vect2list<DA>);
 
-  def("list2vect_int", list2vect_int);
-  def("list2vect_unsigned_int", list2vect_unsigned_int);
-  def("list2vect_float", list2vect_float);
-  def("list2vect_double", list2vect_double);
-  def("list2vect_string", list2vect_string);
-  def("list2vect_DA", list2vect_DA);
+  // def("list2vect_int", list2vect_int);
+  // def("list2vect_unsigned_int", list2vect_unsigned_int);
+  // def("list2vect_float", list2vect_float);
+  // def("list2vect_double", list2vect_double);
+  // def("list2vect_string", list2vect_string);
+  // def("list2vect_DA", list2vect_DA);
 
-  def("printVect", printVect<int>);
-  def("printVect", printVect<float>);
-  def("printVect", printVect<unsigned int>);
-  def("printVect", printVect<double>);
-  def("printVect", printVect<std::string>);
+  // def("printVect", printVect<int>);
+  // def("printVect", printVect<float>);
+  // def("printVect", printVect<unsigned int>);
+  // def("printVect", printVect<double>);
+  // def("printVect", printVect<std::string>);
 
   /////////////////////////////////////////////////
   //    WRAPPING OF THE std::vector<> CLASSES    //
@@ -149,20 +184,20 @@ BOOST_PYTHON_MODULE(PyDACE)
 
   // As for the AlgebraicVector, for each type of
   // std::vector a wrap is carried out
-  class_<std::vector<int>>("stdVector_int")
-      .def(vector_indexing_suite<std::vector<int>>());
+  // class_<std::vector<int>>("stdVector_int")
+  //     .def(vector_indexing_suite<std::vector<int>>());
 
-  class_<std::vector<unsigned int>>("stdVector_unsigned_int")
-      .def(vector_indexing_suite<std::vector<unsigned int>>());
+  // class_<std::vector<unsigned int>>("stdVector_unsigned_int")
+  //     .def(vector_indexing_suite<std::vector<unsigned int>>());
 
-  class_<std::vector<float>>("stdVector_float")
-      .def(vector_indexing_suite<std::vector<float>>());
+  // class_<std::vector<float>>("stdVector_float")
+  //     .def(vector_indexing_suite<std::vector<float>>());
 
-  class_<std::vector<double>>("stdVector_double")
-      .def(vector_indexing_suite<std::vector<double>>());
+  // class_<std::vector<double>>("stdVector_double")
+  //     .def(vector_indexing_suite<std::vector<double>>());
 
-  class_<std::vector<std::string>>("stdVector_string")
-      .def(vector_indexing_suite<std::vector<std::string>>());
+  // class_<std::vector<std::string>>("stdVector_string")
+  //     .def(vector_indexing_suite<std::vector<std::string>>());
 
   // Vectors of Monomial and DA are not accepted,
   // because of the reason explained here:
@@ -184,244 +219,244 @@ BOOST_PYTHON_MODULE(PyDACE)
   // user-friendly implementation of the functions.
   // "nm" and "m" stand for non/member function.
 
-  double (DA::*m_cons)() const = &DA::cons;
-  double (*nm_cons)(const DA &) = cons;
+  // double (DA::*m_cons)() const = &DA::cons;
+  // double (*nm_cons)(const DA &) = cons;
 
-  // Missing "linear"
-  // Missing "gradient"
+  // // Missing "linear"
+  // // Missing "gradient"
 
-  DA (DA::*m_derivSingle)
-  (const unsigned int) const = &DA::deriv;
-  DA (*nm_derivSingle)
-  (const DA &, const unsigned int) = deriv;
+  // DA (DA::*m_derivSingle)
+  // (const unsigned int) const = &DA::deriv;
+  // DA (*nm_derivSingle)
+  // (const DA &, const unsigned int) = deriv;
 
-  DA (DA::*m_derivMultiple)
-  (const std::vector<unsigned int>) const = &DA::deriv;
-  DA (*nm_derivMultiple)
-  (const DA &, const std::vector<unsigned int>) = deriv;
+  // DA (DA::*m_derivMultiple)
+  // (const std::vector<unsigned int>) const = &DA::deriv;
+  // DA (*nm_derivMultiple)
+  // (const DA &, const std::vector<unsigned int>) = deriv;
 
-  DA (DA::*m_integSingle)
-  (const unsigned int) const = &DA::integ;
-  DA (*nm_integSingle)
-  (const DA &, const unsigned int) = integ;
+  // DA (DA::*m_integSingle)
+  // (const unsigned int) const = &DA::integ;
+  // DA (*nm_integSingle)
+  // (const DA &, const unsigned int) = integ;
 
-  DA (DA::*m_integMultiple)
-  (const std::vector<unsigned int>) const = &DA::integ;
-  DA (*nm_integMultiple)
-  (const DA &, const std::vector<unsigned int>) = integ;
+  // DA (DA::*m_integMultiple)
+  // (const std::vector<unsigned int>) const = &DA::integ;
+  // DA (*nm_integMultiple)
+  // (const DA &, const std::vector<unsigned int>) = integ;
 
-  DA (DA::*m_trim)
-  (const unsigned int, const unsigned int) const = &DA::trim;
-  DA (*nm_trim)
-  (const DA &, const unsigned int, const unsigned int) = trim;
+  // DA (DA::*m_trim)
+  // (const unsigned int, const unsigned int) const = &DA::trim;
+  // DA (*nm_trim)
+  // (const DA &, const unsigned int, const unsigned int) = trim;
 
-  DA (DA::*m_trunc)
-  () const = &DA::trunc;
-  DA (*nm_trunc)
-  (const DA &) = trunc;
+  // DA (DA::*m_trunc)
+  // () const = &DA::trunc;
+  // DA (*nm_trunc)
+  // (const DA &) = trunc;
 
-  DA (DA::*m_round)
-  () const = &DA::round;
-  DA (*nm_round)
-  (const DA &) = round;
+  // DA (DA::*m_round)
+  // () const = &DA::round;
+  // DA (*nm_round)
+  // (const DA &) = round;
 
-  // ERROR!
-  // Inside the DA class there exists the
-  // member function "mod", while the nonmember
-  // function is called "fmod". Looks like fmod
-  // has its own declaration in DA.h but not a
-  // definition. Probably it should be named "mod"
-  // instead of "fmod".
-  //
-  DA (DA::*m_mod)
-  (const double) const = &DA::mod;
-  // DA (*nm_mod)(const DA&, const double) = fmod;
+  // // ERROR!
+  // // Inside the DA class there exists the
+  // // member function "mod", while the nonmember
+  // // function is called "fmod". Looks like fmod
+  // // has its own declaration in DA.h but not a
+  // // definition. Probably it should be named "mod"
+  // // instead of "fmod".
+  // //
+  // DA (DA::*m_mod)
+  // (const double) const = &DA::mod;
+  // // DA (*nm_mod)(const DA&, const double) = fmod;
 
-  DA (DA::*m_pow)
-  (const int) const = &DA::pow;
-  DA (*nm_pow)
-  (const DA &, const int) = pow;
+  // DA (DA::*m_pow)
+  // (const int) const = &DA::pow;
+  // DA (*nm_pow)
+  // (const DA &, const int) = pow;
 
-  DA (DA::*m_root)
-  (const int) const = &DA::root;
-  DA (*nm_root)
-  (const DA &, const int) = root;
+  // DA (DA::*m_root)
+  // (const int) const = &DA::root;
+  // DA (*nm_root)
+  // (const DA &, const int) = root;
 
-  DA (DA::*m_minv)
-  () const = &DA::minv;
-  DA (*nm_minv)
-  (const DA &) = minv;
+  // DA (DA::*m_minv)
+  // () const = &DA::minv;
+  // DA (*nm_minv)
+  // (const DA &) = minv;
 
-  DA (DA::*m_sqr)
-  () const = &DA::sqr;
-  DA (*nm_sqr)
-  (const DA &) = sqr;
+  // DA (DA::*m_sqr)
+  // () const = &DA::sqr;
+  // DA (*nm_sqr)
+  // (const DA &) = sqr;
 
-  DA (DA::*m_sqrt)
-  () const = &DA::sqrt;
-  DA (*nm_sqrt)
-  (const DA &) = sqrt;
+  // DA (DA::*m_sqrt)
+  // () const = &DA::sqrt;
+  // DA (*nm_sqrt)
+  // (const DA &) = sqrt;
 
-  DA (DA::*m_isrt)
-  () const = &DA::isrt;
-  DA (*nm_isrt)
-  (const DA &) = isrt;
+  // DA (DA::*m_isrt)
+  // () const = &DA::isrt;
+  // DA (*nm_isrt)
+  // (const DA &) = isrt;
 
-  DA (DA::*m_exp)
-  () const = &DA::exp;
-  DA (*nm_exp)
-  (const DA &) = exp;
+  // DA (DA::*m_exp)
+  // () const = &DA::exp;
+  // DA (*nm_exp)
+  // (const DA &) = exp;
 
-  DA (DA::*m_log)
-  () const = &DA::log;
-  DA (*nm_log)
-  (const DA &) = log;
+  // DA (DA::*m_log)
+  // () const = &DA::log;
+  // DA (*nm_log)
+  // (const DA &) = log;
 
-  DA (DA::*m_logb)
-  (const double) const = &DA::logb;
-  DA (*nm_logb)
-  (const DA &, const double) = logb;
+  // DA (DA::*m_logb)
+  // (const double) const = &DA::logb;
+  // DA (*nm_logb)
+  // (const DA &, const double) = logb;
 
-  DA (DA::*m_sin)
-  () const = &DA::sin;
-  DA (*nm_sin)
-  (const DA &) = sin;
+  // DA (DA::*m_sin)
+  // () const = &DA::sin;
+  // DA (*nm_sin)
+  // (const DA &) = sin;
 
-  DA (DA::*m_cos)
-  () const = &DA::cos;
-  DA (*nm_cos)
-  (const DA &) = cos;
+  // DA (DA::*m_cos)
+  // () const = &DA::cos;
+  // DA (*nm_cos)
+  // (const DA &) = cos;
 
-  DA (DA::*m_tan)
-  () const = &DA::tan;
-  DA (*nm_tan)
-  (const DA &) = tan;
+  // DA (DA::*m_tan)
+  // () const = &DA::tan;
+  // DA (*nm_tan)
+  // (const DA &) = tan;
 
-  DA (DA::*m_asin)
-  () const = &DA::asin;
-  DA (*nm_asin)
-  (const DA &) = asin;
+  // DA (DA::*m_asin)
+  // () const = &DA::asin;
+  // DA (*nm_asin)
+  // (const DA &) = asin;
 
-  DA (DA::*m_acos)
-  () const = &DA::acos;
-  DA (*nm_acos)
-  (const DA &) = acos;
+  // DA (DA::*m_acos)
+  // () const = &DA::acos;
+  // DA (*nm_acos)
+  // (const DA &) = acos;
 
-  DA (DA::*m_atan)
-  () const = &DA::atan;
-  DA (*nm_atan)
-  (const DA &) = atan;
+  // DA (DA::*m_atan)
+  // () const = &DA::atan;
+  // DA (*nm_atan)
+  // (const DA &) = atan;
 
-  DA (DA::*m_atan2)
-  (const DA &) const = &DA::atan2;
-  DA (*nm_atan2)
-  (const DA &, const DA &) = atan2;
+  // DA (DA::*m_atan2)
+  // (const DA &) const = &DA::atan2;
+  // DA (*nm_atan2)
+  // (const DA &, const DA &) = atan2;
 
-  DA (DA::*m_sinh)
-  () const = &DA::sinh;
-  DA (*nm_sinh)
-  (const DA &) = sinh;
+  // DA (DA::*m_sinh)
+  // () const = &DA::sinh;
+  // DA (*nm_sinh)
+  // (const DA &) = sinh;
 
-  DA (DA::*m_cosh)
-  () const = &DA::cosh;
-  DA (*nm_cosh)
-  (const DA &) = cosh;
+  // DA (DA::*m_cosh)
+  // () const = &DA::cosh;
+  // DA (*nm_cosh)
+  // (const DA &) = cosh;
 
-  DA (DA::*m_tanh)
-  () const = &DA::tanh;
-  DA (*nm_tanh)
-  (const DA &) = tanh;
+  // DA (DA::*m_tanh)
+  // () const = &DA::tanh;
+  // DA (*nm_tanh)
+  // (const DA &) = tanh;
 
-  DA (DA::*m_asinh)
-  () const = &DA::asinh;
-  DA (*nm_asinh)
-  (const DA &) = asinh;
+  // DA (DA::*m_asinh)
+  // () const = &DA::asinh;
+  // DA (*nm_asinh)
+  // (const DA &) = asinh;
 
-  DA (DA::*m_acosh)
-  () const = &DA::acosh;
-  DA (*nm_acosh)
-  (const DA &) = acosh;
+  // DA (DA::*m_acosh)
+  // () const = &DA::acosh;
+  // DA (*nm_acosh)
+  // (const DA &) = acosh;
 
-  DA (DA::*m_atanh)
-  () const = &DA::atanh;
-  DA (*nm_atanh)
-  (const DA &) = atanh;
+  // DA (DA::*m_atanh)
+  // () const = &DA::atanh;
+  // DA (*nm_atanh)
+  // (const DA &) = atanh;
 
-  unsigned int (DA::*m_size)() const = &DA::size;
-  unsigned int (*nm_size)(const DA &) = size;
+  // unsigned int (DA::*m_size)() const = &DA::size;
+  // unsigned int (*nm_size)(const DA &) = size;
 
-  double (DA::*m_abs)() const = &DA::abs;
-  double (*nm_abs)(const DA &) = abs;
+  // double (DA::*m_abs)() const = &DA::abs;
+  // double (*nm_abs)(const DA &) = abs;
 
-  double (DA::*m_norm)(unsigned int) const = &DA::norm;
-  double (*nm_norm)(const DA &, unsigned int) = norm;
+  // double (DA::*m_norm)(unsigned int) const = &DA::norm;
+  // double (*nm_norm)(const DA &, unsigned int) = norm;
 
-  std::vector<double> (DA::*m_orderNorm)(unsigned int, unsigned int) const = &DA::orderNorm;
-  std::vector<double> (*nm_orderNorm)(const DA &, unsigned int, unsigned int) = orderNorm;
+  // std::vector<double> (DA::*m_orderNorm)(unsigned int, unsigned int) const = &DA::orderNorm;
+  // std::vector<double> (*nm_orderNorm)(const DA &, unsigned int, unsigned int) = orderNorm;
 
-  std::vector<double> (DA::*m_estimNorm)(unsigned int, unsigned int, unsigned int) const = &DA::estimNorm;
-  std::vector<double> (*nm_estimNorm)(const DA &, unsigned int, unsigned int, unsigned int) = estimNorm;
+  // std::vector<double> (DA::*m_estimNorm)(unsigned int, unsigned int, unsigned int) const = &DA::estimNorm;
+  // std::vector<double> (*nm_estimNorm)(const DA &, unsigned int, unsigned int, unsigned int) = estimNorm;
 
-  Interval (DA::*m_bound)() const = &DA::bound;
-  Interval (*nm_bound)(const DA &) = bound;
+  // Interval (DA::*m_bound)() const = &DA::bound;
+  // Interval (*nm_bound)(const DA &) = bound;
 
-  double (DA::*m_convRadius)(const double, const unsigned int) const = &DA::convRadius;
-  double (*nm_convRadius)(const DA &, const double, const unsigned int) = convRadius;
+  // double (DA::*m_convRadius)(const double, const unsigned int) const = &DA::convRadius;
+  // double (*nm_convRadius)(const DA &, const double, const unsigned int) = convRadius;
 
-  // Definition of overloaded different methods
-  // for the Template functions. Floats and doubles
-  // are considered by Python as equal; nonetheless
-  // two different methods are provided hereinafter.
-  // (May be avoided?)
-  // Moreover, is it useful to define arrays for Python?
-  // (Also the evalArray functions may be avoided)
+  // // Definition of overloaded different methods
+  // // for the Template functions. Floats and doubles
+  // // are considered by Python as equal; nonetheless
+  // // two different methods are provided hereinafter.
+  // // (May be avoided?)
+  // // Moreover, is it useful to define arrays for Python?
+  // // (Also the evalArray functions may be avoided)
 
-  int (DA::*m_evalVector_int)(const std::vector<int> &) const = &DA::eval;
-  int (*nm_evalVector_int)(const DA &, const std::vector<int> &) = eval;
+  // int (DA::*m_evalVector_int)(const std::vector<int> &) const = &DA::eval;
+  // int (*nm_evalVector_int)(const DA &, const std::vector<int> &) = eval;
 
-  unsigned int (DA::*m_evalVector_unsigned_int)(const std::vector<unsigned int> &) const = &DA::eval;
-  unsigned int (*nm_evalVector_unsigned_int)(const DA &, const std::vector<unsigned int> &) = eval;
+  // unsigned int (DA::*m_evalVector_unsigned_int)(const std::vector<unsigned int> &) const = &DA::eval;
+  // unsigned int (*nm_evalVector_unsigned_int)(const DA &, const std::vector<unsigned int> &) = eval;
 
-  float (DA::*m_evalVector_float)(const std::vector<float> &) const = &DA::eval;
-  float (*nm_evalVector_float)(const DA &, const std::vector<float> &) = eval;
+  // float (DA::*m_evalVector_float)(const std::vector<float> &) const = &DA::eval;
+  // float (*nm_evalVector_float)(const DA &, const std::vector<float> &) = eval;
 
-  double (DA::*m_evalVector_double)(const std::vector<double> &) const = &DA::eval;
-  double (*nm_evalVector_double)(const DA &, const std::vector<double> &) = eval;
+  // double (DA::*m_evalVector_double)(const std::vector<double> &) const = &DA::eval;
+  // double (*nm_evalVector_double)(const DA &, const std::vector<double> &) = eval;
 
-  int (DA::*m_evalArray_int)(const int[], const unsigned int) const = &DA::eval;
-  int (*nm_evalArray_int)(const DA &, const int[], const unsigned int) = eval;
+  // int (DA::*m_evalArray_int)(const int[], const unsigned int) const = &DA::eval;
+  // int (*nm_evalArray_int)(const DA &, const int[], const unsigned int) = eval;
 
-  unsigned int (DA::*m_evalArray_unsigned_int)(const unsigned int[], const unsigned int) const = &DA::eval;
-  unsigned int (*nm_evalArray_unsigned_int)(const DA &, const unsigned int[], const unsigned int) = eval;
+  // unsigned int (DA::*m_evalArray_unsigned_int)(const unsigned int[], const unsigned int) const = &DA::eval;
+  // unsigned int (*nm_evalArray_unsigned_int)(const DA &, const unsigned int[], const unsigned int) = eval;
 
-  float (DA::*m_evalArray_float)(const float[], const unsigned int) const = &DA::eval;
-  float (*nm_evalArray_float)(const DA &, const float[], const unsigned int) = eval;
+  // float (DA::*m_evalArray_float)(const float[], const unsigned int) const = &DA::eval;
+  // float (*nm_evalArray_float)(const DA &, const float[], const unsigned int) = eval;
 
-  double (DA::*m_evalArray_double)(const double[], const unsigned int) const = &DA::eval;
-  double (*nm_evalArray_double)(const DA &, const double[], const unsigned int) = eval;
+  // double (DA::*m_evalArray_double)(const double[], const unsigned int) const = &DA::eval;
+  // double (*nm_evalArray_double)(const DA &, const double[], const unsigned int) = eval;
 
-  int (DA::*m_evalScalar_int)(const int &) const = &DA::evalScalar;
-  int (*nm_evalScalar_int)(const DA &, const int &) = evalScalar;
+  // int (DA::*m_evalScalar_int)(const int &) const = &DA::evalScalar;
+  // int (*nm_evalScalar_int)(const DA &, const int &) = evalScalar;
 
-  unsigned int (DA::*m_evalScalar_unsigned_int)(const unsigned int &) const = &DA::evalScalar;
-  unsigned int (*nm_evalScalar_unsigned_int)(const DA &, const unsigned int &) = evalScalar;
+  // unsigned int (DA::*m_evalScalar_unsigned_int)(const unsigned int &) const = &DA::evalScalar;
+  // unsigned int (*nm_evalScalar_unsigned_int)(const DA &, const unsigned int &) = evalScalar;
 
-  float (DA::*m_evalScalar_float)(const float &) const = &DA::evalScalar;
-  float (*nm_evalScalar_float)(const DA &, const float &) = evalScalar;
+  // float (DA::*m_evalScalar_float)(const float &) const = &DA::evalScalar;
+  // float (*nm_evalScalar_float)(const DA &, const float &) = evalScalar;
 
-  double (DA::*m_evalScalar_double)(const double &) const = &DA::evalScalar;
-  double (*nm_evalScalar_double)(const DA &, const double &) = evalScalar;
+  // double (DA::*m_evalScalar_double)(const double &) const = &DA::evalScalar;
+  // double (*nm_evalScalar_double)(const DA &, const double &) = evalScalar;
 
-  compiledDA (DA::*m_compile)() const = &DA::compile;
-  compiledDA (*nm_compile)(const DA &) = compile;
+  // compiledDA (DA::*m_compile)() const = &DA::compile;
+  // compiledDA (*nm_compile)(const DA &) = compile;
 
-  DA (DA::*m_plug)
-  (unsigned int, double) const = &DA::plug;
-  DA (*nm_plug)
-  (const DA &, unsigned int, double) = plug;
+  // DA (DA::*m_plug)
+  // (unsigned int, double) const = &DA::plug;
+  // DA (*nm_plug)
+  // (const DA &, unsigned int, double) = plug;
 
-  std::string (DA::*m_toString)() const = &DA::toString;
-  std::string (*nm_toString)(const DA &) = toString;
+  // std::string (DA::*m_toString)() const = &DA::toString;
+  // std::string (*nm_toString)(const DA &) = toString;
 
   // Missing fromString, both for the single string
   // and the std::vect<string> inputs.
@@ -441,9 +476,9 @@ BOOST_PYTHON_MODULE(PyDACE)
   // hereinafter matters. They're considered starting
   // from the last one moving to the first. Hence,
   // keep this order and don't change it!
-  class_<DA>("DA", init<>())
+  class_<PyDA>("DA", init<>())
       .def(init<const double>())
-      .def(init<const DA>())
+      .def(init<const PyDA>())
       .def(init<const unsigned int, optional<const double>>())
       .def(init<const int, optional<const double>>())
 
